@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <!-- 优化viewport：增加user-scalable=no禁止缩放，提升移动端体验 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>工具集主界面</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        body {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+            background-color: #f5f5f5;
+            /* 移动端body最小高度占满屏幕，避免内容过少时背景不全 */
+            min-height: 100vh;
+        }
+        /* 主容器样式 */
+        .main-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            /* 移动端减少内边距 */
+            padding: 15px;
+        }
+        /* 工具导航栏 */
+        .tools-nav {
+            border-bottom: 2px solid #0078d7;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .tools-nav h1 {
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+            /* 移动端标题字号适配 */
+            font-size: 1.5rem;
+        }
+        .tool-btn {
+            background-color: #0078d7;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            margin-bottom: 10px; /* 新增：按钮换行时增加垂直间距 */
+            transition: all 0.3s ease;
+            /* 提升点击区域优先级 */
+            touch-action: manipulation;
+        }
+        .tool-btn:hover, .tool-btn.active {
+            background-color: #005a9e;
+        }
+        /* 工具内容容器 */
+        .tool-content-container {
+            width: 100%;
+            min-height: 500px;
+            animation: fadeIn 0.3s ease;
+        }
+        /* 加载中提示 */
+        .loading {
+            text-align: center;
+            padding: 50px 20px; /* 左右加内边距，避免文字贴边 */
+            color: #666;
+            font-size: 18px;
+            /* 移动端加载提示字号适配 */
+            font-size: 1rem;
+        }
+        /* 淡入动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* ========== 移动端适配核心：屏幕宽度≤768px（手机）时生效 ========== */
+        @media (max-width: 768px) {
+            /* 手机端body上下边距减少 */
+            body {
+                margin: 10px auto;
+                padding: 0 10px;
+            }
+            /* 工具按钮适配：占满屏幕宽度，增大触控区域 */
+            .tool-btn {
+                width: 100%; /* 每个按钮占满一行，避免拥挤 */
+                padding: 15px 0; /* 增大上下内边距，提升触控体验 */
+                font-size: 18px; /* 字号放大，方便查看 */
+                margin-right: 0; /* 取消右侧间距 */
+                margin-bottom: 12px; /* 增大垂直间距 */
+            }
+            /* 工具内容容器最小高度适配手机屏幕 */
+            .tool-content-container {
+                min-height: 400px;
+            }
+            /* 加载提示垂直居中，适配小屏 */
+            .loading {
+                padding: 80px 10px;
+                line-height: 1.5; /* 行高增大，可读性提升 */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- 工具导航区域 -->
+        <div class="tools-nav">
+            <h1>工具集</h1>
+            <!-- 工具按钮：data-path 指向工具文件路径 -->
+            <button class="tool-btn active" data-path="tools/json-generator.html">JSON生成器</button>
+            <!-- 新增工具只需添加此行，修改data-path和按钮文字 -->
+            <button class="tool-btn" data-path="tools/other-tool.html">其他工具示例</button>
+        </div>
+
+        <!-- 工具内容容器（动态加载工具内容） -->
+        <div class="tool-content-container" id="toolContent"></div>
+    </div>
+
+    <script>
+        // 工具容器
+        const toolContentContainer = document.getElementById('toolContent');
+        // 所有工具按钮
+        const toolBtns = document.querySelectorAll('.tool-btn');
+        
+        // 初始加载默认工具（第一个激活的按钮）
+        loadTool(toolBtns[0].dataset.path);
+
+        // 工具按钮点击事件
+        toolBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 移除所有激活状态
+                toolBtns.forEach(b => b.classList.remove('active'));
+                // 激活当前按钮
+                btn.classList.add('active');
+                // 加载对应工具
+                loadTool(btn.dataset.path);
+            });
+        });
+
+        // 动态加载工具内容
+        function loadTool(toolPath) {
+            // 显示加载中
+            toolContentContainer.innerHTML = '<div class="loading">正在加载工具...</div>';
+            
+            // 使用fetch加载工具HTML文件
+            fetch(toolPath)
+                .then(response => {
+                    if (!response.ok) throw new Error('工具文件加载失败');
+                    return response.text();
+                })
+                .then(html => {
+                    // 将工具内容插入容器
+                    toolContentContainer.innerHTML = html;
+                    // 执行工具中的JavaScript（关键：加载工具的脚本）
+                    executeScriptInContainer(toolContentContainer);
+                })
+                .catch(err => {
+                    toolContentContainer.innerHTML = `<div class="loading">加载失败：${err.message}</div>`;
+                    console.error('工具加载错误：', err);
+                });
+        }
+
+        // 执行容器内的脚本（解决fetch加载的HTML中script不执行的问题）
+        function executeScriptInContainer(container) {
+            const scripts = container.querySelectorAll('script');
+            scripts.forEach(oldScript => {
+                const newScript = document.createElement('script');
+                // 复制原有脚本属性
+                Array.from(oldScript.attributes).forEach(attr => {
+                    newScript.setAttribute(attr.name, attr.value);
+                });
+                // 复制脚本内容
+                newScript.textContent = oldScript.textContent;
+                // 替换原有脚本（触发执行）
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+        }
+    </script>
+</body>
+</html>

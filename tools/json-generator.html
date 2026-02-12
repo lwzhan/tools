@@ -1,0 +1,211 @@
+<!-- 注意：只保留原query.html中<body>内的内容，去掉html/head/body标签 -->
+<div class="container">
+    <!-- 电脑配置表单 -->
+    <div class="form-section">
+        <h2>1. 电脑基础配置</h2>
+        <div class="form-group">
+            <label for="system-info">系统信息</label>
+            <input type="text" id="system-info" value="Windows 10 64位" placeholder="例如：Windows 10 64位、macOS 14 64位">
+        </div>
+        <div class="form-group">
+            <label for="ide">开发工具（IDE/编辑器，多个用逗号分隔）</label>
+            <input type="text" id="ide" value="VSCode, VS2026" placeholder="例如：VSCode, Visual Studio 2022, CLion">
+        </div>
+        <div class="form-group">
+            <label for="languages">主要编程语言（多个用逗号分隔）</label>
+            <input type="text" id="languages" value="C++" placeholder="例如：C++, Python, Java">
+        </div>
+        <div class="form-group">
+            <label for="aux-tools">辅助工具（git、vcpkg等，多个用逗号分隔）</label>
+            <input type="text" id="aux-tools" value="git, vcpkg" placeholder="例如：git, vcpkg, npm, cmake">
+        </div>
+        <div class="form-group">
+            <label for="libs">第三方库（多个用逗号分隔）</label>
+            <input type="text" id="libs" value="SDL2, openCV, Imgui" placeholder="例如：SDL2, openCV, Imgui, Qt">
+        </div>
+    </div>
+
+    <!-- Query模块 -->
+    <div class="form-section">
+        <h2>2. AI查询设置</h2>
+        <div class="form-group">
+            <label for="topic">主题</label>
+            <input type="text" id="query-topic" value="C++代码" placeholder="例如：尽可能职业化的代码">
+        </div>
+        <div class="form-group">
+            <label for="query-constraints">回复约束</label>
+            <select id="query-constraints">
+                <option value="暂时无特殊要求" selected>暂时无特殊要求</option>
+                <option value="只显示需要修改的代码">只显示需要修改的代码</option>
+                <option value="显示完整代码">显示完整代码</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="query-desc">查询描述（你的问题/需求）</label>
+            <textarea id="query-desc" placeholder="例如：我想用C++和SDL2开发一个小游戏，需要解决窗口渲染的问题..."rows="12"></textarea>
+        </div>
+    </div>
+
+    <!-- 操作按钮 -->
+    <button class="btn" onclick="generateJSON()">生成JSON</button>
+    <button class="btn btn-copy" onclick="copyJSON()">复制JSON</button>
+
+    <!-- JSON输出区域 -->
+    <div class="form-section">
+        <h2>3. 生成的JSON结果</h2>
+        <div id="json-output"></div>
+        <p class="tips">提示：生成的JSON已格式化，可直接复制给AI，包含完整的电脑配置和查询设置</p>
+    </div>
+</div>
+
+<style>
+    /* 工具专属样式（原query.html中的style部分） */
+    .form-section {
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+    }
+    h2 {
+        color: #444;
+        margin-bottom: 15px;
+        font-size: 18px;
+    }
+    .form-group {
+        margin-bottom: 12px;
+    }
+    label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #555;
+    }
+    input, textarea, select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        resize: vertical;
+    }
+    textarea {
+        min-height: 80px;
+    }
+    .btn {
+        background-color: #0078d7;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-right: 10px;
+        margin-bottom: 20px;
+    }
+    .btn:hover {
+        background-color: #005a9e;
+    }
+    .btn-copy {
+        background-color: #28a745;
+    }
+    .btn-copy:hover {
+        background-color: #218838;
+    }
+    #json-output {
+        width: 100%;
+        min-height: 300px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-family: 'Consolas', 'Monaco', monospace;
+        font-size: 14px;
+        white-space: pre;
+        overflow: auto;
+    }
+    .tips {
+        color: #666;
+        font-size: 12px;
+        margin-top: 10px;
+        line-height: 1.5;
+    }
+</style>
+
+<script>
+    // 原query.html中的所有JavaScript代码
+    function splitToArr(str) {
+        if (!str) return [];
+        return str.split(',')
+            .map(item => item.trim())
+            .filter(item => item);
+    }
+
+    function parseSystemInfo(str) {
+        const defaultInfo = { os: "Windows 10", bit_version: "64位" };
+        if (!str) return defaultInfo;
+        
+        const bitMatch = str.match(/(64位|32位)/);
+        const bitVersion = bitMatch ? bitMatch[0] : "64位";
+        const os = str.replace(bitVersion, "").trim() || defaultInfo.os;
+        
+        return { os, bit_version: bitVersion };
+    }
+
+    function generateJSON() {
+        const systemInfoStr = document.getElementById('system-info').value.trim();
+        const ideStr = document.getElementById('ide').value.trim();
+        const auxToolsStr = document.getElementById('aux-tools').value.trim();
+        const languagesStr = document.getElementById('languages').value.trim();
+        const libsStr = document.getElementById('libs').value.trim();
+        const queryTopic = document.getElementById('query-topic').value.trim();
+        const queryDesc = document.getElementById('query-desc').value.trim();
+        const queryConstraints = document.getElementById('query-constraints').value;
+
+        const systemInfo = parseSystemInfo(systemInfoStr);
+
+        const finalJSON = {
+            "configuration": {
+                "system": systemInfo,
+                "development_tools": {
+                    "ide": splitToArr(ideStr),
+                    "auxiliary_tools": splitToArr(auxToolsStr)
+                },
+                "programming_languages": splitToArr(languagesStr),
+                "third_party_libraries": splitToArr(libsStr)
+            },
+            "Query": {
+                "topic": queryTopic,
+                "constraints": queryConstraints,
+                "description": queryDesc || "无具体描述"
+            }
+        };
+
+        const jsonStr = JSON.stringify(finalJSON, null, 4);
+        document.getElementById('json-output').textContent = jsonStr;
+    }
+
+    function copyJSON() {
+        generateJSON();
+        const jsonOutput = document.getElementById('json-output');
+        const text = jsonOutput.textContent;
+        
+        if (!text) {
+            alert('请先生成JSON！');
+            return;
+        }
+
+        navigator.clipboard.writeText(text).then(() => {
+            alert('JSON已成功复制到剪贴板！');
+        }).catch(err => {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert('已使用备用方案复制成功！');
+        });
+    }
+
+    // 工具加载完成后自动执行初始化
+    generateJSON();
+</script>

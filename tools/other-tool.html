@@ -1,0 +1,35 @@
+<div class="other-tool-container">
+    <h2>其他工具示例</h2>
+    <div class="form-group">
+        <label for="tool2-input">输入内容</label>
+        <input type="text" id="tool2-input" placeholder="请输入测试内容">
+    </div>
+    <button class="btn" onclick="tool2Func()">点击测试</button>
+    <div id="tool2-output" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px;"></div>
+</div>
+
+<style>
+    /* 新增工具专属样式 */
+    .other-tool-container {
+        padding: 20px;
+    }
+    .btn {
+        background-color: #0078d7;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .btn:hover {
+        background-color: #005a9e;
+    }
+</style>
+
+<script>
+    // 新增工具专属脚本
+    function tool2Func() {
+        const inputVal = document.getElementById('tool2-input').value;
+        document.getElementById('tool2-output').textContent = `你输入的内容：${inputVal || '暂无输入'}`;
+    }
+</script>
