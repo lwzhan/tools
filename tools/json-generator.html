@@ -1,48 +1,55 @@
-<!-- 注意：只保留原query.html中<body>内的内容，去掉html/head/body标签 -->
 <div class="container">
-    <!-- 电脑配置表单 -->
+    <!-- 1. 基础配置 -->
     <div class="form-section">
-        <h2>1. 电脑基础配置</h2>
-        <div class="form-group">
-            <label for="system-info">系统信息</label>
-            <input type="text" id="system-info" value="Windows 10 64位" placeholder="例如：Windows 10 64位、macOS 14 64位">
+        <h2>1. 基础配置</h2>
+        <div class="form-group-row">
+            <input type="text" class="config-key" data-target="system" value="system" placeholder="键名">
+            <input type="text" class="value-input" id="system-info" value="Windows 10 64位" placeholder="例如：Windows 10 64位、macOS 14 64位">
         </div>
-        <div class="form-group">
-            <label for="ide">开发工具（IDE/编辑器，多个用逗号分隔）</label>
-            <input type="text" id="ide" value="VSCode, VS2026" placeholder="例如：VSCode, Visual Studio 2022, CLion">
+        <div class="form-group-row">
+            <input type="text" class="config-key" data-target="development_tools" value="development_tools" placeholder="键名">
+            <input type="text" class="value-input" id="ide" value="VSCode, VS2026" placeholder="例如：VSCode, Visual Studio 2022, CLion">
         </div>
-        <div class="form-group">
-            <label for="languages">主要编程语言（多个用逗号分隔）</label>
-            <input type="text" id="languages" value="C++" placeholder="例如：C++, Python, Java">
+        <div class="form-group-row">
+            <input type="text" class="config-key" data-target="programming_languages" value="programming_languages" placeholder="键名">
+            <input type="text" class="value-input" id="languages" value="C++" placeholder="例如：C++, Python, Java">
         </div>
-        <div class="form-group">
-            <label for="aux-tools">辅助工具（git、vcpkg等，多个用逗号分隔）</label>
-            <input type="text" id="aux-tools" value="git, vcpkg" placeholder="例如：git, vcpkg, npm, cmake">
+        <div class="form-group-row">
+            <input type="text" class="config-key" data-target="auxiliary_tools" value="auxiliary_tools" placeholder="键名">
+            <input type="text" class="value-input" id="aux-tools" value="git, vcpkg" placeholder="例如：git, vcpkg, npm, cmake">
         </div>
-        <div class="form-group">
-            <label for="libs">第三方库（多个用逗号分隔）</label>
-            <input type="text" id="libs" value="SDL2, openCV, Imgui" placeholder="例如：SDL2, openCV, Imgui, Qt">
+        <div class="form-group-row">
+            <input type="text" class="config-key" data-target="third_party_libraries" value="third_party_libraries" placeholder="键名">
+            <input type="text" class="value-input" id="libs" value="SDL2, openCV, Imgui" placeholder="例如：SDL2, openCV, Imgui, Qt">
         </div>
     </div>
 
-    <!-- Query模块 -->
+    <!-- 2. AI查询设置 -->
     <div class="form-section">
         <h2>2. AI查询设置</h2>
-        <div class="form-group">
-            <label for="topic">主题</label>
-            <input type="text" id="query-topic" value="C++代码" placeholder="例如：尽可能职业化的代码">
+        <!-- topic：25:75单行布局 -->
+        <div class="form-group-row">
+            <input type="text" class="query-key" data-target="topic" value="topic" placeholder="键名">
+            <input type="text" class="query-value" id="query-topic" value="" placeholder="例如：游戏“我的世界”设计探讨">
         </div>
-        <div class="form-group">
-            <label for="query-constraints">回复约束</label>
-            <select id="query-constraints">
+        <!-- 新增：constraints（编码约束），默认填充企业级C++规范 -->
+        <div class="form-group-row">
+            <input type="text" class="query-key" data-target="constraints" value="constraints" placeholder="键名">
+            <textarea class="query-value" id="query-constraints" rows="4" placeholder="输入代码编写的约束条件...">请按照大型企业级 C++ 开发规范编写代码，严格遵循 C++17/20 标准、RAII 原则、零未定义行为，包含完善的错误处理、类型安全校验、清晰的接口设计和符合 Google/CppCoreGuidelines 的代码风格，附带详细且规范的注释。</textarea>
+        </div>
+        <!-- 原有constraints改为response_format（响应格式） -->
+        <div class="form-group-row">
+            <input type="text" class="query-key" data-target="response_format" value="response_format" placeholder="键名">
+            <select class="query-value" id="query-response-format">
                 <option value="暂时无特殊要求" selected>暂时无特殊要求</option>
                 <option value="只显示需要修改的代码">只显示需要修改的代码</option>
                 <option value="显示完整代码">显示完整代码</option>
             </select>
         </div>
-        <div class="form-group">
-            <label for="query-desc">查询描述（你的问题/需求）</label>
-            <textarea id="query-desc" placeholder="例如：我想用C++和SDL2开发一个小游戏，需要解决窗口渲染的问题..."rows="12"></textarea>
+        <!-- description：键名单行，输入框在下一行，保持12行 -->
+        <div class="desc-group">
+            <input type="text" class="query-key" data-target="description" value="description" placeholder="键名">
+            <textarea id="query-desc" placeholder="例如：用SDL2+OpenGL+ImgGui开发一个游戏，需要解决窗口渲染的问题..." rows="12"></textarea>
         </div>
     </div>
 
@@ -50,7 +57,7 @@
     <button class="btn" onclick="generateJSON()">生成JSON</button>
     <button class="btn btn-copy" onclick="copyJSON()">复制JSON</button>
 
-    <!-- JSON输出区域 -->
+    <!-- 3. JSON输出区域 -->
     <div class="form-section">
         <h2>3. 生成的JSON结果</h2>
         <div id="json-output"></div>
@@ -58,28 +65,68 @@
     </div>
 </div>
 
+<!-- 整合所有样式到一个style标签，删除冗余定义 -->
 <style>
-    /* 工具专属样式（原query.html中的style部分） */
+    /* 全局通用样式 */
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+    }
+
+    /* 表单区块样式 */
     .form-section {
         margin-bottom: 25px;
         padding-bottom: 20px;
         border-bottom: 1px solid #eee;
     }
+
     h2 {
         color: #444;
         margin-bottom: 15px;
         font-size: 18px;
     }
-    .form-group {
+
+    /* 单行布局（基础配置+query的topic/constraints） */
+    .form-group-row {
+        display: flex;
+        align-items: flex-start; /* 适配textarea顶部对齐 */
+        margin-bottom: 12px;
+        gap: 10px;
+    }
+
+    /* 键名输入框样式（统一25%宽度） */
+    .config-key, .query-key {
+        width: 20% !important;
+        flex-shrink: 0;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    /* 值输入框样式（统一75%宽度） */
+    .value-input, .query-value {
+        width: 80% !important;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    /* description专属样式 */
+    .desc-group {
         margin-bottom: 12px;
     }
-    label {
+
+    .desc-group .query-key {
         display: block;
+        width: 25%;
         margin-bottom: 5px;
-        font-weight: 500;
-        color: #555;
     }
-    input, textarea, select {
+
+    .desc-group textarea {
         width: 100%;
         padding: 10px;
         border: 1px solid #ddd;
@@ -87,9 +134,21 @@
         font-size: 14px;
         resize: vertical;
     }
+
+    /* 通用输入控件样式 */
+    input, textarea, select {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        resize: vertical;
+    }
+
     textarea {
         min-height: 80px;
     }
+
+    /* 按钮样式 */
     .btn {
         background-color: #0078d7;
         color: white;
@@ -101,15 +160,20 @@
         margin-right: 10px;
         margin-bottom: 20px;
     }
+
     .btn:hover {
         background-color: #005a9e;
     }
+
     .btn-copy {
         background-color: #28a745;
     }
+
     .btn-copy:hover {
         background-color: #218838;
     }
+
+    /* JSON输出区域 */
     #json-output {
         width: 100%;
         min-height: 300px;
@@ -122,6 +186,8 @@
         white-space: pre;
         overflow: auto;
     }
+
+    /* 提示文字 */
     .tips {
         color: #666;
         font-size: 12px;
@@ -131,7 +197,7 @@
 </style>
 
 <script>
-    // 原query.html中的所有JavaScript代码
+    // 分割字符串为数组（去空、去空格）
     function splitToArr(str) {
         if (!str) return [];
         return str.split(',')
@@ -139,73 +205,92 @@
             .filter(item => item);
     }
 
-    function parseSystemInfo(str) {
-        const defaultInfo = { os: "Windows 10", bit_version: "64位" };
-        if (!str) return defaultInfo;
-        
-        const bitMatch = str.match(/(64位|32位)/);
-        const bitVersion = bitMatch ? bitMatch[0] : "64位";
-        const os = str.replace(bitVersion, "").trim() || defaultInfo.os;
-        
-        return { os, bit_version: bitVersion };
+    // 获取自定义键名
+    function getCustomKey(target) {
+        const keyInput = document.querySelector(`.config-key[data-target="${target}"], .query-key[data-target="${target}"]`);
+        return keyInput ? keyInput.value.trim() || target : target;
     }
 
+    // 生成JSON
     function generateJSON() {
+        // 获取所有输入值
         const systemInfoStr = document.getElementById('system-info').value.trim();
         const ideStr = document.getElementById('ide').value.trim();
-        const auxToolsStr = document.getElementById('aux-tools').value.trim();
         const languagesStr = document.getElementById('languages').value.trim();
+        const auxToolsStr = document.getElementById('aux-tools').value.trim();
         const libsStr = document.getElementById('libs').value.trim();
         const queryTopic = document.getElementById('query-topic').value.trim();
+        const queryConstraints = document.getElementById('query-constraints').value.trim(); // 新增：获取编码约束
+        const queryResponseFormat = document.getElementById('query-response-format').value; // 原有constraints改为response_format
         const queryDesc = document.getElementById('query-desc').value.trim();
-        const queryConstraints = document.getElementById('query-constraints').value;
-
-        const systemInfo = parseSystemInfo(systemInfoStr);
-
+        
+        // 构建JSON结构
         const finalJSON = {
-            "configuration": {
-                "system": systemInfo,
-                "development_tools": {
-                    "ide": splitToArr(ideStr),
-                    "auxiliary_tools": splitToArr(auxToolsStr)
-                },
-                "programming_languages": splitToArr(languagesStr),
-                "third_party_libraries": splitToArr(libsStr)
+            [getCustomKey("configuration")]: {
+                [getCustomKey("system")]: systemInfoStr,
+                [getCustomKey("development_tools")]: splitToArr(ideStr),
+                [getCustomKey("programming_languages")]: splitToArr(languagesStr),
+                [getCustomKey("auxiliary_tools")]: splitToArr(auxToolsStr),
+                [getCustomKey("third_party_libraries")]: splitToArr(libsStr)
             },
-            "Query": {
-                "topic": queryTopic,
-                "constraints": queryConstraints,
-                "description": queryDesc || "无具体描述"
+            [getCustomKey("Query")]: {
+                [getCustomKey("topic")]: queryTopic,
+                [getCustomKey("constraints")]: queryConstraints || "无编码约束", // 新增：编码约束字段
+                [getCustomKey("response_format")]: queryResponseFormat, // 原有constraints改为response_format
+                [getCustomKey("description")]: queryDesc
             }
         };
 
+        // 格式化并显示JSON
         const jsonStr = JSON.stringify(finalJSON, null, 4);
         document.getElementById('json-output').textContent = jsonStr;
     }
 
+    // 复制JSON到剪贴板
     function copyJSON() {
+        const queryDesc = document.getElementById('query-desc').value.trim();
+        if(!queryDesc){
+            alert('请先填写description!');
+            return;
+        }
         generateJSON();
         const jsonOutput = document.getElementById('json-output');
         const text = jsonOutput.textContent;
-        
         if (!text) {
             alert('请先生成JSON！');
             return;
         }
 
-        navigator.clipboard.writeText(text).then(() => {
-            alert('JSON已成功复制到剪贴板！');
-        }).catch(err => {
-            const textArea = document.createElement('textarea');
-            textArea.value = text;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            alert('已使用备用方案复制成功！');
-        });
+        // 复制逻辑 + 成功提示音
+        navigator.clipboard.writeText(text)
+            .then(() => {
+                // 播放短促的成功提示音
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 800;
+                gainNode.gain.value = 0.1;
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.1);
+            })
+            .catch(err => {
+                // 备用复制方案
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('已使用备用方案复制成功！');
+            });
     }
 
-    // 工具加载完成后自动执行初始化
-    generateJSON();
+    // 页面加载完成后自动生成初始JSON
+    window.onload =generateJSON();
 </script>
